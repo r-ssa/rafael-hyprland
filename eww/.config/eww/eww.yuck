@@ -1,0 +1,66 @@
+;; Proxmox dashboard. Opened via SUPER+X (see hyprland.conf) or by clicking
+;; the Waybar Proxmox module. Polls proxmox_stats.py, the same script the
+;; Waybar module uses, every 5s.
+;;
+;; Phase 5 adds VM create/delete. Safety invariants, don't relax these:
+;;  - create_vm.sh and delete_vm.sh each have their own explicit rofi
+;;    confirmation step — nothing here bypasses that.
+;;  - delete is only ever shown for guests with dashboard_managed = true
+;;    (see proxmox_stats.py) — pre-existing guests like mineserver or
+;;    hyprland-test never get a delete button, full stop.
+
+(defpoll proxmox_stats
+  :interval "5s"
+  :initial "{\"status\": \"config_error\", \"message\": \"loading...\"}"
+  "~/.local/bin/proxmox_stats.py")
+
+(defwidget guest-row [guest]
+  (box :class "guest-row" :orientation "h" :space-evenly false
+    (label :class "guest-status ${guest.status}" :text "●")
+    (label :class "guest-name" :text "${guest.name} (${guest.vmid})" :halign "start" :hexpand true)
+    (label :class "guest-metric" :text "${guest.cpu_pct}% cpu")
+    (label :class "guest-metric" :text "${guest.mem_pct}% mem")
+    (button :class "delete-btn"
+            :visible {guest.dashboard_managed}
+            :onclick "~/.local/bin/delete_vm.sh ${guest.vmid} ${guest.name}"
+      "🗑")))
+
+(defwidget node-summary []
+  (box :orientation "v" :space-evenly false :class "node-summary"
+    (label :class "node-title" :text "Node")
+    (box :orientation "h" :space-evenly true
+      (label :text "CPU ${proxmox_stats.node.cpu_pct}%")
+      (label :text "Mem ${proxmox_stats.node.mem_pct}%")
+      (label :text "Disk ${proxmox_stats.node.disk_pct}%"))))
+
+(defwidget error-view []
+  (box :orientation "v" :class "error-view" :space-evenly false
+    (label :class "error-icon" :text "⚠")
+    (label :class "error-title" :text {proxmox_stats.status == "network_down" ? "Your network is down" :
+                                        proxmox_stats.status == "timeout" ? "Proxmox is slow / not responding" :
+                                        proxmox_stats.status == "unreachable" ? "Proxmox host unreachable" :
+                                        proxmox_stats.status == "auth_error" ? "API token rejected" :
+                                        proxmox_stats.status == "config_error" ? "Not configured yet" :
+                                        "Something went wrong"})
+    (label :class "error-detail" :text "${proxmox_stats.message}")))
+
+(defwidget dashboard []
+  (box :orientation "v" :class "dashboard" :space-evenly false
+    (box :orientation "h" :space-evenly false
+      (label :class "dashboard-title" :text "Proxmox" :hexpand true :halign "start")
+      (button :class "new-vm-btn" :onclick "~/.local/bin/create_vm.sh" "+ New VM"))
+    (box :orientation "v" :space-evenly false
+      :visible {proxmox_stats.status == "ok"}
+      (node-summary)
+      (box :orientation "v" :class "guest-list" :space-evenly false
+        (for guest in {proxmox_stats.guests ?: []}
+          (guest-row :guest guest))))
+    (box :visible {proxmox_stats.status != "ok"}
+      (error-view))))
+
+(defwindow proxmox-dashboard
+  :monitor 0
+  :geometry (geometry :x "0%" :y "40px" :anchor "top right" :width "340px" :height "1px")
+  :stacking "fg"
+  :exclusive false
+  (dashboard))

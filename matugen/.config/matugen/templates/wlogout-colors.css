@@ -1,0 +1,3 @@
+@define-color bg #{{colors.background.default.hex_stripped}};
+@define-color fg #{{colors.on_background.default.hex_stripped}};
+@define-color accent #{{colors.primary.default.hex_stripped}};

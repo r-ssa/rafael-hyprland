@@ -1,0 +1,5 @@
+@define-color bg #{{colors.background.default.hex_stripped}};
+@define-color fg #{{colors.on_background.default.hex_stripped}};
+@define-color accent #{{colors.primary.default.hex_stripped}};
+@define-color surface #{{colors.surface.default.hex_stripped}};
+@define-color error #{{colors.error.default.hex_stripped}};

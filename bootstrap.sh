@@ -50,7 +50,7 @@ PACMAN_PACKAGES=(
   fzf
   nodejs
   npm
-  nvidia-open-dkms
+  nvidia-open
   nvidia-utils
 )
 

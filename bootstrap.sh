@@ -337,6 +337,7 @@ main() {
   install_hyprland_plugins
   generate_initial_colors
   setup_spicetify_theme
+  "${HOME}/.config/hypr/scripts/vesktop-sync-theme.sh" || true
   setup_proxmox_config
   copy_agent_scripts
   setup_guest_ssh_key

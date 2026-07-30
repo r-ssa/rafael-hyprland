@@ -13,27 +13,27 @@ case "$STATUS" in
     MEM="$(jq -r '.node.mem_pct' <<< "$RAW")"
     RUNNING="$(jq -r '[.guests[] | select(.status == "running")] | length' <<< "$RAW")"
     TOTAL="$(jq -r '.guests | length' <<< "$RAW")"
-    jq -n --arg text "PVE ${CPU}% / ${MEM}% (${RUNNING}/${TOTAL})" \
+    jq -nc --arg text "PVE ${CPU}% / ${MEM}% (${RUNNING}/${TOTAL})" \
           --arg tooltip "Node CPU ${CPU}%, mem ${MEM}% — ${RUNNING}/${TOTAL} guests running" \
           '{text: $text, tooltip: $tooltip, class: "ok"}'
     ;;
   network_down)
-    jq -n '{text: "PVE: your network is down", tooltip: "Could not reach the local gateway", class: "error"}'
+    jq -nc '{text: "PVE: your network is down", tooltip: "Could not reach the local gateway", class: "error"}'
     ;;
   timeout)
-    jq -n '{text: "PVE: slow/timeout", tooltip: "Proxmox host is not responding in time", class: "warn"}'
+    jq -nc '{text: "PVE: slow/timeout", tooltip: "Proxmox host is not responding in time", class: "warn"}'
     ;;
   unreachable)
     MSG="$(jq -r '.message' <<< "$RAW")"
-    jq -n --arg tooltip "$MSG" '{text: "PVE: unreachable", tooltip: $tooltip, class: "error"}'
+    jq -nc --arg tooltip "$MSG" '{text: "PVE: unreachable", tooltip: $tooltip, class: "error"}'
     ;;
   auth_error)
-    jq -n '{text: "PVE: auth error", tooltip: "API token was rejected — check proxmox.conf", class: "error"}'
+    jq -nc '{text: "PVE: auth error", tooltip: "API token was rejected — check proxmox.conf", class: "error"}'
     ;;
   config_error)
-    jq -n '{text: "PVE: not configured", tooltip: "Run bootstrap.sh to set up proxmox.conf", class: "disabled"}'
+    jq -nc '{text: "PVE: not configured", tooltip: "Run bootstrap.sh to set up proxmox.conf", class: "disabled"}'
     ;;
   *)
-    jq -n '{text: "PVE: error", tooltip: "Unexpected error polling Proxmox", class: "error"}'
+    jq -nc '{text: "PVE: error", tooltip: "Unexpected error polling Proxmox", class: "error"}'
     ;;
 esac

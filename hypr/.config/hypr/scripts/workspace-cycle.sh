@@ -14,10 +14,15 @@ DIRECTION="${1:?Usage: workspace-cycle.sh next|prev}"
 FOCUSED_MONITOR="$(hyprctl activeworkspace -j | jq -r '.monitor')"
 CURRENT_ID="$(hyprctl activeworkspace -j | jq -r '.id')"
 
-# Workspace IDs pinned to the focused monitor, sorted ascending.
-mapfile -t IDS < <(hyprctl workspacerules -j \
-  | jq -r --arg mon "${FOCUSED_MONITOR}" '.[] | select(.monitor == $mon) | .workspaceString | tonumber' \
-  | sort -n)
+# Workspace IDs to cycle: the statically pinned ones (workspacerules) plus
+# any currently-live workspace on this monitor (covers ones created on the
+# fly by new-workspace.sh, which aren't in workspacerules at all).
+mapfile -t IDS < <( {
+  hyprctl workspacerules -j \
+    | jq -r --arg mon "${FOCUSED_MONITOR}" '.[] | select(.monitor == $mon) | .workspaceString | tonumber'
+  hyprctl workspaces -j \
+    | jq -r --arg mon "${FOCUSED_MONITOR}" '.[] | select(.monitor == $mon) | .id'
+} | sort -n -u)
 
 [[ "${#IDS[@]}" -gt 0 ]] || exit 0
 

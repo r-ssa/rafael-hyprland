@@ -23,9 +23,7 @@ window#waybar {
 #memory,
 #custom-gpu,
 #temperature,
-#network,
-#pulseaudio,
-#tray {
+#pulseaudio {
     background-color: alpha(@surface, 0.75);
     border: 1px solid alpha(@accent, 0.25);
     border-radius: 14px;
@@ -81,7 +79,7 @@ window#waybar {
     color: @error;
 }
 
-#temperature, #network, #pulseaudio {
+#temperature, #pulseaudio {
     color: alpha(@fg, 0.8);
 }
 
@@ -94,12 +92,4 @@ window#waybar {
 
 #temperature.critical {
     color: @error;
-}
-
-#tray {
-    padding: 0 10px;
-}
-
-#tray > .passive {
-    -gtk-icon-effect: dim;
 }

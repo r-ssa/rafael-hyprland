@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Toggles a Hyprland special workspace running Claude Code in a terminal.
 # Bound to SUPER+grave in hyprland.conf. Spawns the terminal on first use,
-# just toggles visibility after that (see windowrulev2 in hyprland.conf for
+# just toggles visibility after that (see windowrule in hyprland.conf for
 # how the "claude-scratchpad" class window gets pinned to this workspace).
 set -euo pipefail
 

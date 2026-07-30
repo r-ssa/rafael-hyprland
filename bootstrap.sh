@@ -117,7 +117,8 @@ stow_configs() {
            "${HOME}/.local/bin/vm_ops.py" \
            "${HOME}/.local/bin/create_vm.sh" \
            "${HOME}/.local/bin/delete_vm.sh" \
-           "${HOME}/.config/waybar/scripts/proxmox_waybar.sh" 2>/dev/null || true
+           "${HOME}/.config/waybar/scripts/proxmox_waybar.sh" \
+           "${HOME}/.config/hypr/scripts/show-keybinds.sh" 2>/dev/null || true
 }
 
 generate_initial_colors() {

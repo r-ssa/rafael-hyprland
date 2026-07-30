@@ -7,6 +7,15 @@
     font-size: 13px;
 }
 
+/* GTK's window CSS node defaults to an opaque background regardless of
+   what widgets inside it do — needed so power-menu-card's translucent
+   background (below) actually shows the Hyprland blur behind it instead
+   of a flat GTK-theme color filling the rest of the window. Waybar's own
+   stylesheet has the same rule for the same reason. */
+window {
+    background-color: transparent;
+}
+
 /* GTK's default theme paints buttons with a background-image gradient and
    a box-shadow that sit on top of / mask a plain background-color — every
    themed button below (.new-vm-btn, .delete-btn, .mute-btn, .power-btn)
@@ -24,6 +33,7 @@ button {
     border: 2px solid @accent;
     border-radius: 12px;
     padding: 12px;
+    min-width: 340px;
 }
 
 .dashboard-title {
@@ -115,6 +125,7 @@ button {
     border: 2px solid @accent;
     border-radius: 12px;
     padding: 12px;
+    min-width: 280px;
 }
 
 .volume-icon {
@@ -170,28 +181,85 @@ button {
     background-color: alpha(@accent, 0.2);
 }
 
-.power-menu {
-    background-color: @bg;
+.power-menu-card {
+    /* Translucent, not flat @bg — Hyprland's `layerrule = match:namespace
+       eww, blur on` (hyprland.conf) does the actual frosting; this just
+       needs to let enough through for that to be visible, same idea as
+       the Claude Code scratchpad's floating-glass look. */
+    background-color: alpha(@bg, 0.72);
     color: @fg;
-    border: 2px solid @accent;
-    border-radius: 12px;
-    padding: 6px;
-}
-
-.power-btn {
-    background-color: transparent;
-    color: @fg;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
-}
-
-.power-btn:hover {
-    background-color: alpha(@accent, 0.2);
+    border: 2px solid alpha(@accent, 0.6);
+    border-radius: 16px;
+    padding: 8px;
+    min-width: 220px;
 }
 
 .power-menu-sep {
     min-height: 1px;
     background-color: alpha(@fg, 0.15);
-    margin: 4px 8px;
+    margin: 6px 4px;
+}
+
+/* Quick-toggle row: night light + settings, Windows 11 quick-settings
+   style — small square icon tiles side by side instead of full-width
+   rows, since these are one-tap toggles, not a list of actions. */
+.quick-row {
+    margin-bottom: 4px;
+}
+
+.quick-icon-btn {
+    background-color: alpha(@surface, 0.6);
+    color: @fg;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 0 4px;
+}
+
+.quick-icon-btn:hover {
+    background-color: alpha(@accent, 0.2);
+}
+
+.quick-icon-btn.active {
+    background-color: @accent;
+    color: @bg;
+}
+
+.quick-icon {
+    font-size: 16px;
+}
+
+/* Power actions: Logout / Restart / Power off, icon + label rows —
+   Windows Start menu's power flyout is the reference. */
+.power-row {
+    background-color: transparent;
+    color: @fg;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+.power-row:hover {
+    background-color: alpha(@accent, 0.2);
+}
+
+.power-row-icon {
+    font-size: 15px;
+    min-width: 20px;
+}
+
+.power-row-label {
+    margin-left: 2px;
+}
+
+.power-row-hint {
+    color: alpha(@fg, 0.4);
+    font-size: 10px;
+}
+
+/* Lock/Relogin — tucked behind a right-click on Logout instead of always
+   shown, so the default view stays to the three things people actually
+   reach for. Indented slightly so it visually reads as "belonging to"
+   the Logout row above it. */
+.logout-extra {
+    margin-left: 12px;
 }

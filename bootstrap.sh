@@ -34,6 +34,7 @@ PACMAN_PACKAGES=(
   swaync
   hyprlock
   hypridle
+  hyprsunset
   stow
   rust
   kitty
@@ -48,6 +49,7 @@ PACMAN_PACKAGES=(
   ttf-jetbrains-mono-nerd
   seatd
   jq
+  socat
   python
   python-pip
   libnotify

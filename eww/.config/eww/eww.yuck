@@ -58,8 +58,18 @@
     (box :visible {proxmox_stats.status != "ok"}
       (error-view))))
 
+;; Every popup below closes on an outside click via a background listener
+;; (see scripts/eww-outside-click-watcher.sh, exec-once'd in
+;; hyprland.conf), not a GTK-side trick — a full-monitor invisible
+;; "catcher" window was tried first, but its background never actually
+;; composited as transparent (GTK's window/.background CSS node ignores a
+;; plain `background-color: transparent` here), so it blacked out the
+;; whole screen behind it instead of just catching clicks. The listener
+;; watches Hyprland's event socket for focus moving to any other window
+;; and closes whichever of these are open — same end result, no risk of
+;; painting over your desktop.
 (defwindow proxmox-dashboard
-  :monitor 0
+  :monitor 1
   :geometry (geometry :x "0%" :y "40px" :anchor "top right" :width "340px" :height "1px")
   :stacking "fg"
   :exclusive false
@@ -76,7 +86,7 @@
 (defwidget volume-slider []
   (box :orientation "v" :class "volume-popup" :space-evenly false
     (box :orientation "h" :space-evenly false
-      (label :class "volume-icon" :text {volume_info.muted ? "󰝟" : volume_info.volume > 50 ? "󰕾" : volume_info.volume > 0 ? "󰖀" : "󰕿"})
+      (label :class "volume-icon" :text {volume_info.muted ? "󰖁" : volume_info.volume > 50 ? "󰕾" : volume_info.volume > 0 ? "󰕿" : "󰖀"})
       (label :class "volume-desc" :text "${volume_info.desc}" :hexpand true :halign "start" :limit-width 22)
       (label :class "volume-pct" :text "${volume_info.volume}%"))
     (scale :class "volume-scale"
@@ -95,33 +105,58 @@
   :exclusive false
   (volume-slider))
 
-;; Power menu — toggled by SUPER+Q or clicking waybar's clock, replacing
-;; wlogout's full-screen tile grid with a small dropdown under the clock
-;; (waybar's clock module is centered, hence anchor "top center" here so
-;; it lines up directly beneath it). Each button closes the menu before
-;; running its action so it doesn't linger on screen through a lock/
-;; suspend/etc. Unlike wlogout, eww's daemon stays running the whole
-;; session (exec-once'd in hyprland.conf) instead of exiting right after
-;; a click, so idle-settings.sh's rofi prompts are never at risk of
-;; getting killed mid-interaction the way they were under wlogout.
-(defwidget power-btn [label action]
-  (button :class "power-btn" :onclick action
-    (label :text label :halign "start" :hexpand true)))
+;; Power menu — toggled by SUPER+Q or clicking waybar's clock. Windows
+;; 11-style: a tiny quick-toggle row (night light, settings) up top, then
+;; just the three things an actual power menu needs — Logout, Restart,
+;; Power off — each with an icon, not a wall of text options nobody uses
+;; day to day. Lock and Relogin aren't gone, they're one right-click away
+;; on Logout (mirrors how Windows tucks less-common actions behind a
+;; secondary interaction instead of listing everything flat).
+;;
+;; Each action closes the menu before running so it doesn't linger on
+;; screen through a lock/suspend/etc. Unlike wlogout, eww's daemon stays
+;; running the whole session (exec-once'd in hyprland.conf) instead of
+;; exiting right after a click, so idle-settings.sh's rofi prompts are
+;; never at risk of getting killed mid-interaction the way they were
+;; under wlogout.
+(defvar logout_expanded false)
+(defvar nightlight_active false)
+
+(defwidget quick-icon-btn [icon action active]
+  (button :class "quick-icon-btn ${active ? "active" : ""}" :onclick action
+    (label :class "quick-icon" :text icon)))
+
+(defwidget power-row [icon label action]
+  (button :class "power-row" :onclick action
+    (box :orientation "h" :space-evenly false :spacing 10
+      (label :class "power-row-icon" :text icon)
+      (label :class "power-row-label" :text label :halign "start" :hexpand true))))
+
+(defwidget logout-row []
+  (button :class "power-row"
+          :onclick "eww close power-menu; hyprctl dispatch exit"
+          :onrightclick "~/.config/hypr/scripts/toggle-eww-var.sh logout_expanded"
+    (box :orientation "h" :space-evenly false :spacing 10
+      (label :class "power-row-icon" :text "")
+      (label :class "power-row-label" :text "Logout" :halign "start" :hexpand true)
+      (label :class "power-row-hint" :text "right-click for more" :visible {!logout_expanded}))))
 
 (defwidget power-menu []
-  (box :orientation "v" :class "power-menu" :space-evenly false
-    (power-btn :label "Lock" :action "eww close power-menu; hyprlock")
-    (power-btn :label "Logout" :action "eww close power-menu; hyprctl dispatch exit")
-    (power-btn :label "Relogin" :action "eww close power-menu; ~/.config/hypr/scripts/relogin.sh")
-    (power-btn :label "Suspend" :action "eww close power-menu; systemctl suspend")
-    (power-btn :label "Reboot" :action "eww close power-menu; systemctl reboot")
-    (power-btn :label "Shutdown" :action "eww close power-menu; systemctl poweroff")
+  (box :orientation "v" :class "power-menu-card" :space-evenly false
+    (box :orientation "h" :class "quick-row" :space-evenly true
+      (quick-icon-btn :icon "" :action "~/.config/hypr/scripts/toggle-nightlight.sh" :active {nightlight_active})
+      (quick-icon-btn :icon "" :action "eww close power-menu; ~/.config/hypr/scripts/idle-settings.sh" :active false))
     (box :class "power-menu-sep")
-    (power-btn :label "Idle settings" :action "eww close power-menu; ~/.config/hypr/scripts/idle-settings.sh")))
+    (logout-row)
+    (box :orientation "v" :class "logout-extra" :space-evenly false :visible {logout_expanded}
+      (power-row :icon "" :label "Lock" :action "eww close power-menu; hyprlock")
+      (power-row :icon "" :label "Relogin" :action "eww close power-menu; ~/.config/hypr/scripts/relogin.sh"))
+    (power-row :icon "" :label "Restart" :action "eww close power-menu; systemctl reboot")
+    (power-row :icon "" :label "Power off" :action "eww close power-menu; systemctl poweroff")))
 
 (defwindow power-menu
   :monitor 1
-  :geometry (geometry :x "0px" :y "40px" :anchor "top center" :width "200px" :height "1px")
+  :geometry (geometry :x "0px" :y "0px" :anchor "center" :width "1px" :height "1px")
   :stacking "overlay"
   :exclusive false
   (power-menu))

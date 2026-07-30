@@ -16,6 +16,8 @@ PRESETS=(
   "Violet|#8e24aa"
   "Pink|#e91e8c"
   "Teal|#00897b"
+  "White|#ffffff"
+  "Black|#000000"
   "Custom hex…|custom"
 )
 

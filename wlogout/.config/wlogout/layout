@@ -11,6 +11,12 @@
     "keybind" : "e"
 }
 {
+    "label" : "relogin",
+    "action" : "~/.config/hypr/scripts/relogin.sh",
+    "text" : "Relogin",
+    "keybind" : "t"
+}
+{
     "label" : "suspend",
     "action" : "systemctl suspend",
     "text" : "Suspend",

@@ -14,6 +14,8 @@ set -euo pipefail
 #             ai-status alias
 #   Phase 7 — python-pip + `mcp` SDK + filesystem/Proxmox MCP servers
 #             registered with `claude mcp add` (user scope)
+#   Phase 8 — Spotify (spotify-launcher) + spicetify-cli/spicetify-themes-git,
+#             HyprlandRice color scheme tracking the matugen accent + Vesktop
 #   later phases add to this as needed
 #
 # Safe to re-run: package installs and stow are idempotent.
@@ -56,6 +58,7 @@ PACMAN_PACKAGES=(
   meson
   ninja
   pkgconf
+  spotify-launcher
 )
 
 AUR_PACKAGES=(
@@ -63,6 +66,9 @@ AUR_PACKAGES=(
   matugen-bin
   eww
   claude-code
+  vesktop-bin
+  spicetify-cli
+  spicetify-themes-git
 )
 
 log() { printf '\n==> %s\n' "$1"; }
@@ -209,6 +215,34 @@ EOF
   log "Wrote ${config_file}"
 }
 
+setup_spicetify_theme() {
+  # spicetify-themes-git installs Sleek system-wide under
+  # /opt/spicetify-cli/Themes, which is root-owned — copy it into
+  # ~/.config/spicetify/Themes so spicetify-sync-theme.sh can maintain a
+  # "HyprlandRice" color scheme in it that tracks the matugen accent.
+  local sleek_src="/opt/spicetify-cli/Themes/Sleek"
+  local sleek_dst="${HOME}/.config/spicetify/Themes/Sleek"
+
+  if [[ ! -d "${sleek_src}" ]]; then
+    log "spicetify-themes-git not installed — skipping Spotify theme setup"
+    return
+  fi
+  if [[ ! -f "${HOME}/.config/spotify/prefs" ]]; then
+    log "Spotify not logged in yet — run spotify once, log in, then re-run" \
+        "${REPO_DIR}/hypr/.config/hypr/scripts/spicetify-sync-theme.sh"
+    return
+  fi
+
+  mkdir -p "${HOME}/.config/spicetify/Themes"
+  rm -rf "${sleek_dst}"
+  cp -r "${sleek_src}" "${sleek_dst}"
+
+  log "Applying spicetify theme"
+  spicetify config current_theme Sleek color_scheme HyprlandRice
+  "${HOME}/.config/hypr/scripts/spicetify-sync-theme.sh"
+  spicetify apply
+}
+
 copy_agent_scripts() {
   # Copied, not stowed: agent-scripts/ is meant to be a stable, freely
   # editable location independent of wherever this repo happens to live,
@@ -302,6 +336,7 @@ main() {
   stow_configs
   install_hyprland_plugins
   generate_initial_colors
+  setup_spicetify_theme
   setup_proxmox_config
   copy_agent_scripts
   setup_guest_ssh_key

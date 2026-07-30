@@ -6,3 +6,11 @@ config/proxmox.conf
 # Editor/OS cruft
 .DS_Store
 *.swp
+
+# scripts/.local/share and scripts/.local/state are stowed to ~/.local/share
+# and ~/.local/state wholesale (Stow folds the whole dir when the target
+# doesn't pre-exist) — every app's runtime cache/state/data lands here, not
+# just dotfiles. Safety net until this gets unfolded properly; do not commit
+# any of it.
+scripts/.local/share/
+scripts/.local/state/

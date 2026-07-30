@@ -1,6 +1,32 @@
 # wpaperd config — replaces hyprpaper. `any` applies to every display not
-# explicitly listed below, matching the old single-wallpaper-on-all-outputs
-# hyprpaper.conf behavior.
+# explicitly listed below.
+[DP-4]
+path = "~/.config/hypr/wallpaper.png"
+mode = "fit"
+
+# HDMI-A-3 is the 1920x1080 panel mounted vertically (transform 1 in
+# hyprland.conf, 90° rotated for portrait use). wpaperd renders it upside
+# down on this output — confirmed by sampling pixel brightness top vs
+# bottom of both the source image and the actual rendered result: source
+# is bright-top/dark-bottom (sky over dunes), rendered came out dark-top/
+# bright-bottom, i.e. rotated 180° from correct. This is a wpaperd/
+# transform interaction bug, not something wrong with the image or the
+# monitor's own transform (regular windows on this output are right-side
+# up). Rather than patch wpaperd's source, wallpaper-hdmi-a3.png is a
+# pre-rotated-180° copy that cancels the bug out. If a future wpaperd
+# update fixes the underlying issue, this monitor will start rendering
+# upside down again — switch back to wallpaper.png at that point.
+#
+# mode = "center" (not "fit"): the image is 3840x2160 (16:9) and this
+# output is portrait 1080x1920 (9:16) — "fit" left large empty bars top
+# and bottom (the "not filling" half of the original bug report).
+# "center" crops instead of letterboxing, so it actually fills the
+# screen; it comes at the cost of showing only a cropped vertical slice
+# of the image rather than the whole thing.
+[HDMI-A-3]
+path = "~/.config/hypr/wallpaper-hdmi-a3.png"
+mode = "center"
+
 [any]
 path = "~/.config/hypr/wallpaper.png"
 mode = "fit"

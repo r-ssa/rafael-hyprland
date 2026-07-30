@@ -5,6 +5,7 @@
 # survives reboots instead of being clobbered by the wallpaper every login.
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OVERRIDE_FILE="${HOME}/.config/hyprland-rice/theme.conf"
 
 if [[ -f "${OVERRIDE_FILE}" ]]; then
@@ -13,7 +14,12 @@ if [[ -f "${OVERRIDE_FILE}" ]]; then
 fi
 
 if [[ "${ACCENT_SOURCE:-wallpaper}" == "color" && -n "${ACCENT_COLOR:-}" ]]; then
-  matugen color hex "${ACCENT_COLOR}" -m dark
+  # Delegate to set-theme-color.sh instead of calling matugen directly —
+  # it also handles the grayscale (white/black) literal-color override,
+  # which plain matugen gets wrong (see its comments). Duplicating that
+  # logic here previously meant a pinned white/black accent reverted to
+  # the wrong color on every login.
+  THEME_INIT_QUIET=1 "${SCRIPT_DIR}/set-theme-color.sh" "${ACCENT_COLOR}"
 else
   matugen image ~/.config/hypr/wallpaper.png -m dark --prefer=saturation
 fi

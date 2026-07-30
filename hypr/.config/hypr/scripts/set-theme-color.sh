@@ -69,6 +69,17 @@ if [[ "${r}" == "${g}" && "${g}" == "${b}" ]]; then
   done
 
   sed -i -E "s/accent: #[0-9a-fA-F]{6};/accent: #${hex};/" "${HOME}/.config/rofi/colors.rasi"
+
+  if [[ -f "${HOME}/.config/kitty/colors.conf" ]]; then
+    sed -i -E "s/^selection_background #[0-9a-fA-F]{6}/selection_background #${hex}/;
+               s/^selection_foreground #[0-9a-fA-F]{6}/selection_foreground #${on_hex}/;
+               s/^cursor #[0-9a-fA-F]{6}/cursor #${hex}/;
+               s/^url_color #[0-9a-fA-F]{6}/url_color #${hex}/" \
+      "${HOME}/.config/kitty/colors.conf"
+    # New kitty windows pick this up immediately; already-open ones need
+    # kitty's default ctrl+shift+F5 (reload_config_file) to pick it up —
+    # not auto-reloading here since that needs allow_remote_control on.
+  fi
 fi
 
-notify-send "Theme" "Accent color set to ${COLOR}" 2>/dev/null || true
+[[ -n "${THEME_INIT_QUIET:-}" ]] || notify-send "Theme" "Accent color set to ${COLOR}" 2>/dev/null || true

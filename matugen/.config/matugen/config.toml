@@ -30,3 +30,7 @@ output_path = "~/.config/wlogout/colors.css"
 [templates.eww]
 input_path = "~/.config/matugen/templates/eww-colors.css"
 output_path = "~/.config/eww/colors.css"
+
+[templates.kitty]
+input_path = "~/.config/matugen/templates/kitty-colors.conf"
+output_path = "~/.config/kitty/colors.conf"

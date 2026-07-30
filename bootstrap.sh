@@ -25,7 +25,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Stow packages in this repo, in the order they should be linked.
 # agent-scripts is deliberately excluded — it's not a Stow package.
-STOW_PACKAGES=(hypr waybar rofi eww swaync wlogout matugen scripts wpaperd)
+STOW_PACKAGES=(hypr waybar rofi eww swaync wlogout matugen scripts wpaperd kitty)
 
 PACMAN_PACKAGES=(
   hyprland

@@ -8,7 +8,7 @@
     "margin-right": 12,
     "spacing": 0,
 
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-left": ["hyprland/window"],
     "modules-center": ["clock"],
     "modules-right": [
         "custom/proxmox",
@@ -20,15 +20,6 @@
         "pulseaudio",
         "tray"
     ],
-
-    "hyprland/workspaces": {
-        "format": "{icon}",
-        "on-click": "activate",
-        "format-icons": {
-            "active": "",
-            "default": ""
-        }
-    },
 
     "hyprland/window": {
         "max-length": 50,
@@ -76,9 +67,9 @@
         "format-icons": {
             "default": ["", ""]
         },
-        "on-click": "~/.config/hypr/scripts/volume-menu.sh",
+        "on-click": "eww open --toggle volume-popup",
         "on-click-middle": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-        "on-click-right": "pavucontrol",
+        "on-click-right": "~/.config/hypr/scripts/audio-devices-menu.sh",
         "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
         "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
         "tooltip-format": "{desc}: {volume}%"

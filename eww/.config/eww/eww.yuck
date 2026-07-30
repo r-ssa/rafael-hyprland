@@ -64,3 +64,33 @@
   :stacking "fg"
   :exclusive false
   (dashboard))
+
+;; Volume slider popup — toggled by left-clicking waybar's pulseaudio
+;; module (right-click still opens volume-menu.sh for output/input device
+;; switching, that's a selection list, not a slider — different job).
+(defpoll volume_info
+  :interval "1s"
+  :initial "{\"volume\": 0, \"muted\": false, \"desc\": \"\"}"
+  "~/.config/eww/scripts/volume_info.sh")
+
+(defwidget volume-slider []
+  (box :orientation "v" :class "volume-popup" :space-evenly false
+    (box :orientation "h" :space-evenly false
+      (label :class "volume-icon" :text {volume_info.muted ? "󰝟" : volume_info.volume > 50 ? "󰕾" : volume_info.volume > 0 ? "󰖀" : "󰕿"})
+      (label :class "volume-desc" :text "${volume_info.desc}" :hexpand true :halign "start" :limit-width 22)
+      (label :class "volume-pct" :text "${volume_info.volume}%"))
+    (scale :class "volume-scale"
+           :value {volume_info.volume}
+           :min 0
+           :max 100
+           :round-digits 0
+           :onchange "pactl set-sink-volume @DEFAULT_SINK@ {}%")
+    (button :class "mute-btn" :onclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+      (label :text {volume_info.muted ? "Unmute" : "Mute"}))))
+
+(defwindow volume-popup
+  :monitor 1
+  :geometry (geometry :x "20px" :y "40px" :anchor "top right" :width "280px" :height "1px")
+  :stacking "overlay"
+  :exclusive false
+  (volume-slider))

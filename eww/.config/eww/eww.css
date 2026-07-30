@@ -97,3 +97,64 @@
     font-size: 11px;
     margin-top: 4px;
 }
+
+.volume-popup {
+    background-color: @bg;
+    color: @fg;
+    border: 2px solid @accent;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.volume-icon {
+    font-size: 16px;
+    color: @accent;
+    margin-right: 8px;
+}
+
+.volume-desc {
+    color: alpha(@fg, 0.7);
+    font-size: 11px;
+}
+
+.volume-pct {
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.volume-scale {
+    margin-top: 10px;
+    min-height: 6px;
+}
+
+.volume-scale trough {
+    background-color: @surface;
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+.volume-scale highlight {
+    background-color: @accent;
+    border-radius: 4px;
+}
+
+.volume-scale slider {
+    background-color: @accent;
+    border-radius: 50%;
+    min-width: 14px;
+    min-height: 14px;
+    margin: -5px;
+}
+
+.mute-btn {
+    background-color: @surface;
+    color: @fg;
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.mute-btn:hover {
+    background-color: alpha(@accent, 0.2);
+}

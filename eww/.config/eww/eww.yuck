@@ -133,13 +133,18 @@
       (label :class "power-row-label" :text label :halign "start" :hexpand true))))
 
 (defwidget logout-row []
-  (button :class "power-row"
-          :onclick "eww close power-menu; hyprctl dispatch exit"
-          :onrightclick "~/.config/hypr/scripts/toggle-eww-var.sh logout_expanded"
-    (box :orientation "h" :space-evenly false :spacing 10
-      (label :class "power-row-icon" :text "")
-      (label :class "power-row-label" :text "Logout" :halign "start" :hexpand true)
-      (label :class "power-row-hint" :text "right-click for more" :visible {!logout_expanded}))))
+  ;; Windows puts a plain chevron next to expandable rows (the account
+  ;; tile in Start, etc.) instead of hiding the interaction behind a
+  ;; right-click — same idea here: a separate small button for the
+  ;; chevron, so it's discoverable, sitting next to the main Logout
+  ;; button which still does the immediate action on click.
+  (box :orientation "h" :class "logout-row" :space-evenly false
+    (button :class "power-row" :hexpand true :onclick "eww close power-menu; hyprctl dispatch exit"
+      (box :orientation "h" :space-evenly false :spacing 10
+        (label :class "power-row-icon" :text "")
+        (label :class "power-row-label" :text "Logout" :halign "start" :hexpand true)))
+    (button :class "chevron-btn" :onclick "~/.config/hypr/scripts/toggle-eww-var.sh logout_expanded"
+      (label :class "chevron-icon" :text {logout_expanded ? "v" : ">"}))))
 
 (defwidget power-menu []
   (box :orientation "v" :class "power-menu-card" :space-evenly false

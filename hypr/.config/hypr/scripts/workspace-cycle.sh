@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# SUPER+Tab / SUPER+SHIFT+Tab: cycle to the next/prev workspace pinned to
-# whichever monitor currently has focus. Hyprland's native `workspace, +1`
+# ALT+Tab: cycle to the next workspace pinned to whichever monitor
+# currently has focus (only "next" is bound; "prev" is supported here for
+# scripting/testing but has no keybind). Hyprland's native `workspace, +1`
 # dispatcher cycles by global workspace ID and crosses monitor boundaries
 # once it runs past the focused monitor's range (confirmed live: stepping
 # +1 five times from DP-4's workspace 2 walked focus straight onto

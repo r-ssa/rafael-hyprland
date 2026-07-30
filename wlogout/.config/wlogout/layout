@@ -34,3 +34,9 @@
     "text" : "Shutdown",
     "keybind" : "p"
 }
+{
+    "label" : "settings",
+    "action" : "~/.config/hypr/scripts/idle-settings.sh",
+    "text" : "Idle settings",
+    "keybind" : "i"
+}

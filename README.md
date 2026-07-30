@@ -12,11 +12,37 @@ top-level directory (`hypr/`, `waybar/`, `rofi/`, `eww/`, `swaync/`,
 conventionally share `~/.config/hypr/`.
 
 Theming is handled by **matugen** (chosen over pywal — see Phase 3):
-it generates a Material-You color scheme from `hypr/.config/hypr/wallpaper.png`
-on every login and writes it into per-app `colors.*` files that Waybar,
-rofi, swaync, wlogout, and Hyprland itself all import. Edit the
-templates under `matugen/.config/matugen/templates/`, never the
-generated `colors.*` files directly.
+by default it generates a Material-You color scheme from
+`hypr/.config/hypr/wallpaper.png` on every login and writes it into
+per-app `colors.*` files that Waybar, rofi, swaync, wlogout, and
+Hyprland itself all import. Edit the templates under
+`matugen/.config/matugen/templates/`, never the generated `colors.*`
+files directly.
+
+The accent color (window borders, Waybar highlights, etc.) can be pinned
+manually instead of derived from the wallpaper: `SUPER+SHIFT+T` opens a
+rofi picker (`hypr/.config/hypr/scripts/pick-theme-color.sh`) with a few
+presets plus free-form hex entry, or run
+`~/.config/hypr/scripts/set-theme-color.sh '#ff6a00'` directly.
+`set-theme-color.sh wallpaper` reverts to the wallpaper-derived scheme.
+The choice is persisted to `~/.config/hyprland-rice/theme.conf` and
+re-applied by `theme-init.sh` on every login (the exec-once that used to
+call `matugen image` directly), so a manual pin survives reboots.
+
+The `hyprglass` plugin (liquid-glass blur/lens effects on top of
+Hyprland's native blur — https://github.com/hyprnux/hyprglass) is
+installed and enabled via `hyprpm` in `bootstrap.sh`, configured in the
+`plugin:hyprglass { ... }` block in `hyprland.conf`, and loaded on every
+login via `exec-once = hyprpm reload -n`.
+
+`hyprland.conf` configures two monitors: an auto-detected primary
+(`monitor = , preferred, auto, 1`, kept first — Hyprland's `auto-*`
+positions misbehave on a named rule if it's the very first rule parsed,
+hyprwm/Hyprland#8529), plus a second 1920x1080 panel on `HDMI-A-1`
+mounted vertically to the left of the primary and rotated 90° clockwise
+(`transform, 1`). If that output is ever renamed (different port/cable/
+dock), update the connector name in the `monitor =` line — find the
+current name with `hyprctl monitors all`.
 
 `agent-scripts/` holds Claude Code / homelab automation scripts (Phase 6+),
 not dotfiles, so it isn't a Stow package — `bootstrap.sh` copies its

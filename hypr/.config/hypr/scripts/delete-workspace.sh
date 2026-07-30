@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SUPER+CTRL+Tab: close every window on the current workspace and switch
+# ALT+CTRL+Tab: close every window on the current workspace and switch
 # to the previous workspace on this monitor first, then close — so focus
 # has already moved away by the time the windows disappear. A pinned 1-9
 # workspace just goes back to empty (persistent:true keeps it around); a

@@ -5,6 +5,17 @@
 # on-timeout command, not position, so this survives reordering the file.
 set -euo pipefail
 
+# wlogout tears down its own process group right after a tile click, which
+# kills any child that hasn't detached — same problem relogin.sh solves
+# for its own delayed relaunch. Unlike the other tiles (lock/suspend/etc.
+# are one-shot commands that don't need to outlive the click), this script
+# waits on two rofi prompts, so it needs to survive past wlogout's exit.
+if [[ "${1:-}" != "--detached" ]]; then
+  setsid "$0" --detached >/dev/null 2>&1 &
+  disown
+  exit 0
+fi
+
 CONF="${HOME}/.config/hypr/hypridle.conf"
 
 get_timeout() {

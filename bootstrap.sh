@@ -16,6 +16,7 @@ set -euo pipefail
 #             registered with `claude mcp add` (user scope)
 #   Phase 8 — Spotify (spotify-launcher) + spicetify-cli/spicetify-themes-git,
 #             HyprlandRice color scheme tracking the matugen accent + Vesktop
+#   Phase 9 — wpaperd replaces hyprpaper (built from source, cargo workspace)
 #   later phases add to this as needed
 #
 # Safe to re-run: package installs and stow are idempotent.
@@ -24,7 +25,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Stow packages in this repo, in the order they should be linked.
 # agent-scripts is deliberately excluded — it's not a Stow package.
-STOW_PACKAGES=(hypr waybar rofi eww swaync wlogout matugen scripts)
+STOW_PACKAGES=(hypr waybar rofi eww swaync wlogout matugen scripts wpaperd)
 
 PACMAN_PACKAGES=(
   hyprland
@@ -33,8 +34,8 @@ PACMAN_PACKAGES=(
   swaync
   hyprlock
   hypridle
-  hyprpaper
   stow
+  rust
   kitty
   thunar
   wl-clipboard
@@ -131,6 +132,24 @@ stow_configs() {
            "${HOME}/.config/hypr/scripts/theme-init.sh" \
            "${HOME}/.config/hypr/scripts/set-theme-color.sh" \
            "${HOME}/.config/hypr/scripts/pick-theme-color.sh" 2>/dev/null || true
+}
+
+install_wpaperd() {
+  # Not packaged (no official/AUR package used here) — built from source
+  # the same way it was done interactively: clone, `cargo install --path
+  # daemon` (it's a cargo workspace, not a single-crate build), which
+  # lands the binary in ~/.cargo/bin.
+  if [[ -x "${HOME}/.cargo/bin/wpaperd" ]]; then
+    log "wpaperd already installed"
+    return
+  fi
+
+  log "Building wpaperd from source"
+  local build_dir
+  build_dir="$(mktemp -d)"
+  git clone https://github.com/danyspin97/wpaperd "${build_dir}"
+  (cd "${build_dir}" && cargo install --path daemon)
+  rm -rf "${build_dir}"
 }
 
 install_hyprland_plugins() {
@@ -334,6 +353,7 @@ main() {
   fix_clock_skew
   enable_seatd
   stow_configs
+  install_wpaperd
   install_hyprland_plugins
   generate_initial_colors
   setup_spicetify_theme

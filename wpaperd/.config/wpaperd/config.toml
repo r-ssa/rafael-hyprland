@@ -1,0 +1,6 @@
+# wpaperd config — replaces hyprpaper. `any` applies to every display not
+# explicitly listed below, matching the old single-wallpaper-on-all-outputs
+# hyprpaper.conf behavior.
+[any]
+path = "~/.config/hypr/wallpaper.png"
+mode = "fit"

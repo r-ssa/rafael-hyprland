@@ -7,13 +7,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PRESETS=(
   "Wallpaper (auto)|wallpaper"
-  "Orange|#ff6a00"
   "Red|#e53935"
-  "Pink|#e91e8c"
-  "Purple|#8e24aa"
-  "Blue|#1e88e5"
-  "Teal|#00897b"
+  "Orange|#ff6a00"
+  "Yellow|#fdd835"
   "Green|#43a047"
+  "Blue|#1e88e5"
+  "Indigo|#3949ab"
+  "Violet|#8e24aa"
+  "Pink|#e91e8c"
+  "Teal|#00897b"
   "Custom hex…|custom"
 )
 

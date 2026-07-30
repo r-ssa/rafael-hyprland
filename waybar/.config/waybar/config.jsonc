@@ -14,8 +14,10 @@
         "custom/proxmox",
         "cpu",
         "memory",
+        "custom/gpu",
         "temperature",
         "network",
+        "pulseaudio",
         "tray"
     ],
 
@@ -23,8 +25,8 @@
         "format": "{icon}",
         "on-click": "activate",
         "format-icons": {
-            "active": "",
-            "default": ""
+            "active": "",
+            "default": ""
         }
     },
 
@@ -39,26 +41,45 @@
     },
 
     "cpu": {
-        "format": "  {usage}%",
+        "format": "  {usage}%",
         "interval": 5
     },
 
     "memory": {
-        "format": "  {}%",
+        "format": "󰍛  {}%",
         "interval": 5
+    },
+
+    "custom/gpu": {
+        "exec": "~/.config/waybar/scripts/gpu_usage.sh",
+        "format": "󰻠 {}%",
+        "interval": 5,
+        "tooltip": false
     },
 
     "temperature": {
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
-        "format-icons": ["", "", ""]
+        "format-icons": ["", "", ""]
     },
 
     "network": {
-        "format-wifi": "  {essid} ({signalStrength}%)",
-        "format-ethernet": "  {ifname}",
+        "format-wifi": "  {essid} ({signalStrength}%)",
+        "format-ethernet": "󰈀  {ifname}",
         "format-disconnected": "⚠ disconnected",
         "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
+    },
+
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": " muted",
+        "format-icons": {
+            "default": ["", ""]
+        },
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+        "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+        "tooltip-format": "{desc}: {volume}%"
     },
 
     "tray": {

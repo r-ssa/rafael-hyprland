@@ -21,8 +21,10 @@ window#waybar {
 #custom-proxmox,
 #cpu,
 #memory,
+#custom-gpu,
 #temperature,
 #network,
+#pulseaudio,
 #tray {
     background-color: alpha(@surface, 0.75);
     border: 1px solid alpha(@accent, 0.25);
@@ -79,8 +81,15 @@ window#waybar {
     color: @error;
 }
 
-#cpu, #memory, #temperature, #network {
+#temperature, #network, #pulseaudio {
     color: alpha(@fg, 0.8);
+}
+
+/* CPU/GPU/memory icons pinned to the theme accent color (set via
+   set-theme-color.sh / SUPER+SHIFT+T) so they stay legible and stand
+   out from the plain-fg modules around them. */
+#cpu, #memory, #custom-gpu {
+    color: @accent;
 }
 
 #temperature.critical {

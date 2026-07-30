@@ -7,17 +7,26 @@
 # off the focused monitor's range, same reasoning as that script.
 set -euo pipefail
 
+# Same race as workspace-cycle.sh (scroll can fire this rapidly too) —
+# see that script's comment. Shares its lock since both read/dispatch
+# against the same "current workspace" state and could race each other,
+# not just themselves, if fired back to back.
+LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/hypr-workspace-ops.lock"
+exec 200>"${LOCKFILE}"
+flock -n 200 || exit 0
+
 DIRECTION="${1:?Usage: move-window-workspace.sh next|prev}"
 
 FOCUSED_MONITOR="$(hyprctl activeworkspace -j | jq -r '.monitor')"
 CURRENT_ID="$(hyprctl activeworkspace -j | jq -r '.id')"
 
-mapfile -t IDS < <( {
-  hyprctl workspacerules -j \
-    | jq -r --arg mon "${FOCUSED_MONITOR}" '.[] | select(.monitor == $mon) | .workspaceString | tonumber'
-  hyprctl workspaces -j \
-    | jq -r --arg mon "${FOCUSED_MONITOR}" '.[] | select(.monitor == $mon) | .id'
-} | sort -n -u)
+# Live workspaces only, specials excluded — same list and same reasoning
+# as workspace-cycle.sh, see its comment. The specials filter matters
+# doubly here: without it this could movetoworkspace a normal window
+# straight into the Claude Code scratchpad.
+mapfile -t IDS < <(hyprctl workspaces -j \
+  | jq -r --arg mon "${FOCUSED_MONITOR}" '.[] | select(.monitor == $mon and .id >= 0) | .id' \
+  | sort -n -u)
 
 [[ "${#IDS[@]}" -gt 0 ]] || exit 0
 

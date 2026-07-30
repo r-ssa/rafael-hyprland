@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# wlogout's "Relogin" button. There's no display manager on this machine
+# The power menu's "Relogin" button (see eww/.config/eww/eww.yuck). There's
+# no display manager on this machine
 # (Hyprland is launched directly from a TTY, see bootstrap.sh's seatd
 # setup) so a plain logout just drops back to a bare shell prompt. This
 # detaches a delayed Hyprland relaunch — so it survives this compositor

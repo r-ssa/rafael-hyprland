@@ -7,6 +7,17 @@
     font-size: 13px;
 }
 
+/* GTK's default theme paints buttons with a background-image gradient and
+   a box-shadow that sit on top of / mask a plain background-color — every
+   themed button below (.new-vm-btn, .delete-btn, .mute-btn, .power-btn)
+   was silently rendering as a plain unstyled system-theme button until
+   this was found and reset here, once, instead of repeating it per class. */
+button {
+    background-image: none;
+    box-shadow: none;
+    border: none;
+}
+
 .dashboard {
     background-color: @bg;
     color: @fg;
@@ -157,4 +168,30 @@
 
 .mute-btn:hover {
     background-color: alpha(@accent, 0.2);
+}
+
+.power-menu {
+    background-color: @bg;
+    color: @fg;
+    border: 2px solid @accent;
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.power-btn {
+    background-color: transparent;
+    color: @fg;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.power-btn:hover {
+    background-color: alpha(@accent, 0.2);
+}
+
+.power-menu-sep {
+    min-height: 1px;
+    background-color: alpha(@fg, 0.15);
+    margin: 4px 8px;
 }

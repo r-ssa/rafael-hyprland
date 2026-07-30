@@ -25,7 +25,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Stow packages in this repo, in the order they should be linked.
 # agent-scripts is deliberately excluded — it's not a Stow package.
-STOW_PACKAGES=(hypr waybar rofi eww swaync wlogout matugen scripts wpaperd kitty)
+STOW_PACKAGES=(hypr waybar rofi eww swaync wlogout matugen scripts wpaperd kitty firefox)
 
 PACMAN_PACKAGES=(
   hyprland
@@ -43,6 +43,7 @@ PACMAN_PACKAGES=(
   slurp
   qt5ct
   polkit-kde-agent
+  desktop-file-utils
   xdg-desktop-portal-hyprland
   ttf-jetbrains-mono-nerd
   seatd
@@ -132,6 +133,11 @@ stow_configs() {
            "${HOME}/.config/hypr/scripts/theme-init.sh" \
            "${HOME}/.config/hypr/scripts/set-theme-color.sh" \
            "${HOME}/.config/hypr/scripts/pick-theme-color.sh" 2>/dev/null || true
+  # Without this, the firefox package's --new-window override (fixes links
+  # from other apps silently reusing an existing Firefox window on a
+  # different workspace) sits on disk but isn't picked up by xdg-open
+  # until something refreshes the desktop-file cache.
+  update-desktop-database "${HOME}/.local/share/applications"
 }
 
 install_wpaperd() {

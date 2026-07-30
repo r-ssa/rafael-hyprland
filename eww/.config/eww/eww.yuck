@@ -94,3 +94,34 @@
   :stacking "overlay"
   :exclusive false
   (volume-slider))
+
+;; Power menu — toggled by SUPER+Q or clicking waybar's clock, replacing
+;; wlogout's full-screen tile grid with a small dropdown under the clock
+;; (waybar's clock module is centered, hence anchor "top center" here so
+;; it lines up directly beneath it). Each button closes the menu before
+;; running its action so it doesn't linger on screen through a lock/
+;; suspend/etc. Unlike wlogout, eww's daemon stays running the whole
+;; session (exec-once'd in hyprland.conf) instead of exiting right after
+;; a click, so idle-settings.sh's rofi prompts are never at risk of
+;; getting killed mid-interaction the way they were under wlogout.
+(defwidget power-btn [label action]
+  (button :class "power-btn" :onclick action
+    (label :text label :halign "start" :hexpand true)))
+
+(defwidget power-menu []
+  (box :orientation "v" :class "power-menu" :space-evenly false
+    (power-btn :label "Lock" :action "eww close power-menu; hyprlock")
+    (power-btn :label "Logout" :action "eww close power-menu; hyprctl dispatch exit")
+    (power-btn :label "Relogin" :action "eww close power-menu; ~/.config/hypr/scripts/relogin.sh")
+    (power-btn :label "Suspend" :action "eww close power-menu; systemctl suspend")
+    (power-btn :label "Reboot" :action "eww close power-menu; systemctl reboot")
+    (power-btn :label "Shutdown" :action "eww close power-menu; systemctl poweroff")
+    (box :class "power-menu-sep")
+    (power-btn :label "Idle settings" :action "eww close power-menu; ~/.config/hypr/scripts/idle-settings.sh")))
+
+(defwindow power-menu
+  :monitor 1
+  :geometry (geometry :x "0px" :y "40px" :anchor "top center" :width "200px" :height "1px")
+  :stacking "overlay"
+  :exclusive false
+  (power-menu))

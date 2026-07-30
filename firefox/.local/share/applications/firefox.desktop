@@ -1,0 +1,34 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+# User override of /usr/share/applications/firefox.desktop. Only change:
+# --new-window on the default Exec. Firefox is single-instance — without
+# this, xdg-open (what every other app uses to open a link) hands the URL
+# to the existing Firefox process, which just opens a new tab in whatever
+# window already exists, wherever its workspace happens to be. Hyprland
+# then focuses you there — "silently opens in the other workspace." A
+# genuine new toplevel window opens on the currently active workspace
+# instead, like any other freshly-launched app.
+Exec=/usr/lib/firefox/firefox --new-window %u
+Terminal=false
+X-MultipleArgs=false
+Icon=firefox
+StartupWMClass=firefox
+DBusActivatable=false
+Categories=GNOME;GTK;Network;WebBrowser;
+MimeType=application/json;application/pdf;application/rdf+xml;application/rss+xml;application/x-xpinstall;application/xhtml+xml;application/xml;audio/flac;audio/ogg;audio/webm;image/avif;image/gif;image/jpeg;image/png;image/svg+xml;image/webp;text/html;text/xml;video/ogg;video/webm;x-scheme-handler/chrome;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/mailto;
+StartupNotify=true
+Actions=new-window;new-private-window;open-profile-manager;
+Name=Firefox
+
+[Desktop Action new-window]
+Name=Open a New Window
+Exec=/usr/lib/firefox/firefox --new-window %u
+
+[Desktop Action new-private-window]
+Name=Open a New Private Window
+Exec=/usr/lib/firefox/firefox --private-window %u
+
+[Desktop Action open-profile-manager]
+Name=Open the Profile Manager
+Exec=/usr/lib/firefox/firefox --ProfileManager

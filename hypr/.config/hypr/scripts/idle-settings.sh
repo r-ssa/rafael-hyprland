@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-# "Idle settings" tile in wlogout (SUPER+Q): edit hypridle.conf's timeouts
-# (lock, screen-off, suspend) from a rofi menu instead of hand-editing the
-# file. Each listener block in hypridle.conf is identified by its
-# on-timeout command, not position, so this survives reordering the file.
+# "Idle settings" button in the power menu (see eww/.config/eww/eww.yuck):
+# edit hypridle.conf's timeouts (lock, screen-off, suspend) from a rofi
+# menu instead of hand-editing the file. Each listener block in
+# hypridle.conf is identified by its on-timeout command, not position, so
+# this survives reordering the file.
 set -euo pipefail
 
-# wlogout tears down its own process group right after a tile click, which
-# kills any child that hasn't detached — same problem relogin.sh solves
-# for its own delayed relaunch. Unlike the other tiles (lock/suspend/etc.
-# are one-shot commands that don't need to outlive the click), this script
-# waits on two rofi prompts, so it needs to survive past wlogout's exit.
+# Self-detach via setsid regardless of caller: this used to be a wlogout
+# tile, and wlogout tears down its own process group right after a click
+# — killing any child that hasn't detached — which silently killed this
+# script's rofi prompts before they could be interacted with. eww (the
+# current caller) doesn't have that problem since its daemon stays alive
+# for the whole session, but keeping the detach is cheap insurance if
+# this ever gets wired up to something else that behaves like wlogout did.
 if [[ "${1:-}" != "--detached" ]]; then
   setsid "$0" --detached >/dev/null 2>&1 &
   disown

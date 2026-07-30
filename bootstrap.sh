@@ -60,7 +60,6 @@ PACMAN_PACKAGES=(
 
 AUR_PACKAGES=(
   wlogout
-  nwg-dock-hyprland
   matugen-bin
   eww
   claude-code

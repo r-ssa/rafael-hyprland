@@ -52,6 +52,10 @@ PACMAN_PACKAGES=(
   npm
   nvidia-open
   nvidia-utils
+  cmake
+  meson
+  ninja
+  pkgconf
 )
 
 AUR_PACKAGES=(
@@ -118,7 +122,31 @@ stow_configs() {
            "${HOME}/.local/bin/create_vm.sh" \
            "${HOME}/.local/bin/delete_vm.sh" \
            "${HOME}/.config/waybar/scripts/proxmox_waybar.sh" \
-           "${HOME}/.config/hypr/scripts/show-keybinds.sh" 2>/dev/null || true
+           "${HOME}/.config/hypr/scripts/show-keybinds.sh" \
+           "${HOME}/.config/hypr/scripts/theme-init.sh" \
+           "${HOME}/.config/hypr/scripts/set-theme-color.sh" \
+           "${HOME}/.config/hypr/scripts/pick-theme-color.sh" 2>/dev/null || true
+}
+
+install_hyprland_plugins() {
+  # hyprpm ships with the hyprland package. `update` fetches/builds the
+  # headers matching the currently installed Hyprland version — required
+  # before any plugin can be built against it.
+  if ! command -v hyprpm >/dev/null 2>&1; then
+    log "hyprpm not found — skipping plugin install (hyprglass)"
+    return
+  fi
+
+  log "Updating hyprpm plugin headers"
+  hyprpm update
+
+  if ! hyprpm list 2>/dev/null | grep -q "hyprglass"; then
+    log "Adding hyprglass plugin (https://github.com/hyprnux/hyprglass)"
+    hyprpm add https://github.com/hyprnux/hyprglass
+  fi
+
+  log "Enabling hyprglass"
+  hyprpm enable hyprglass
 }
 
 generate_initial_colors() {
@@ -273,6 +301,7 @@ main() {
   fix_clock_skew
   enable_seatd
   stow_configs
+  install_hyprland_plugins
   generate_initial_colors
   setup_proxmox_config
   copy_agent_scripts

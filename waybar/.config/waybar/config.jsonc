@@ -35,7 +35,9 @@
 
     "clock": {
         "format": "{:%H:%M   %a %d %b}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        // Calendar-on-hover disabled per request — code kept, not deleted,
+        // in case it's wanted back later. Just uncomment to restore.
+        // "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "on-click": "eww open --toggle power-menu"
     },
 

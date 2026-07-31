@@ -1,13 +1,13 @@
 * {
-    bg:     #{{colors.background.default.hex_stripped}};
-    fg:     #{{colors.on_background.default.hex_stripped}};
-    accent: #{{colors.primary.default.hex_stripped}};
-    surface: #{{colors.surface.default.hex_stripped}};
+    bg:     #0e1415;
+    fg:     #dee3e5;
+    accent: #ffffff;
+    surface: #0e1415;
     /* Alpha EB == 235/255 == 0.92, exactly decoration:active_opacity from
        hyprland.conf, so a menu using this matches what the Claude Code
        scratchpad window gets from Hyprland automatically. Lets the
        `layerrule = ... blur on` blur show through (see hyprland.conf's
        "scratchpad look" block). NB: rofi's .rasi parser rejects
        underscores in property names — this must stay hyphenated. */
-    bg-translucent: #{{colors.background.default.hex_stripped}}EB;
+    bg-translucent: #0e1415EB;
 }

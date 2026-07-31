@@ -12,16 +12,33 @@ configuration {
     display-window: "Windows";
 }
 
+// Matches the Claude Code scratchpad (SUPER+grave). The scratchpad is a
+// real window, so Hyprland's decoration{} block gives it rounding/
+// opacity/blur/border for free; rofi is a layer surface and gets none of
+// that automatically, so the values are mirrored by hand here and the
+// blur/dim are opted into per-namespace in hyprland.conf (see the
+// "scratchpad look" block there). Values deliberately copied, not
+// invented:
+//   border-radius 12px   == decoration:rounding
+//   @bg-translucent (EB) == decoration:active_opacity 0.92
+//   border 2px @accent   == general:border_size + col.active_border
+//   width/height 75/80%  == the claude-scratchpad windowrule size
 window {
-    width: 30%;
+    width: 75%;
+    height: 80%;
     border-radius: 12px;
-    background-color: @bg;
+    background-color: @bg-translucent;
     border: 2px;
     border-color: @accent;
 }
 
+// Every container below needs an explicit transparent background: rofi
+// falls back to its built-in (light!) default theme for any background
+// it isn't told about, which rendered the list rows as opaque cream
+// blocks sitting on top of the translucent window.
 mainbox {
     padding: 12px;
+    background-color: transparent;
 }
 
 inputbar {
@@ -32,6 +49,7 @@ inputbar {
 }
 
 entry {
+    background-color: transparent;
     text-color: @fg;
     placeholder: "Search...";
 }
@@ -40,15 +58,46 @@ listview {
     margin: 8px 0 0 0;
     lines: 8;
     scrollbar: false;
+    background-color: transparent;
+}
+
+// `element { background-color: transparent }` alone isn't enough: rofi's
+// built-in theme defines more specific selectors per row state —
+// `element normal.normal`, `element alternate.normal`, `element
+// selected.normal`, etc. — which win over the plain `element` rule above
+// and reference *rofi's own* named colors (normal-background,
+// alternate-normal-background, selected-normal-background, ...), not
+// ours. Those defaulted to rofi's built-in light theme (lightbg/lightfg),
+// which is what actually painted the rows cream. Redefining the named
+// colors themselves, rather than fighting selector specificity per
+// state, fixes every state (normal/alternate/urgent/active) in one place.
+* {
+    normal-background:            transparent;
+    normal-foreground:            @fg;
+    alternate-normal-background:  transparent;
+    alternate-normal-foreground:  @fg;
+    selected-normal-background:   @accent;
+    selected-normal-foreground:   @bg;
+    urgent-background:            transparent;
+    urgent-foreground:            @fg;
+    alternate-urgent-background:  transparent;
+    alternate-urgent-foreground:  @fg;
+    selected-urgent-background:   @accent;
+    selected-urgent-foreground:   @bg;
+    active-background:            transparent;
+    active-foreground:            @fg;
+    alternate-active-background:  transparent;
+    alternate-active-foreground:  @fg;
+    selected-active-background:   @accent;
+    selected-active-foreground:   @bg;
 }
 
 element {
     padding: 6px 10px;
     border-radius: 6px;
-    text-color: @fg;
 }
 
-element selected {
-    background-color: @accent;
-    text-color: @bg;
+element-icon,
+element-text {
+    background-color: transparent;
 }

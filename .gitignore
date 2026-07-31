@@ -14,3 +14,14 @@ config/proxmox.conf
 # any of it.
 scripts/.local/share/
 scripts/.local/state/
+
+# scripts/.local/lib is where `pip install --user` puts site-packages —
+# same stow-folding issue as share/state above, just for Python installs.
+# The entry-point shims pip drops in bin/ (agy, inv, invoke — from
+# installing the `invoke` task runner and friends) are equally not
+# hand-authored, so they're named individually rather than ignoring all
+# of bin/, which does hold real hand-written scripts (create_vm.sh etc).
+scripts/.local/lib/
+scripts/.local/bin/agy
+scripts/.local/bin/inv
+scripts/.local/bin/invoke

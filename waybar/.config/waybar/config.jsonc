@@ -38,7 +38,7 @@
         // Calendar-on-hover disabled per request — code kept, not deleted,
         // in case it's wanted back later. Just uncomment to restore.
         // "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "on-click": "eww open --toggle power-menu"
+        "on-click": "~/.config/hypr/scripts/toggle-menu.sh power-menu"
     },
 
     "cpu": {
@@ -71,7 +71,7 @@
         "format-icons": {
             "default": ["", ""]
         },
-        "on-click": "eww open --toggle volume-popup",
+        "on-click": "~/.config/hypr/scripts/toggle-menu.sh volume-popup",
         "on-click-middle": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
         "on-click-right": "~/.config/hypr/scripts/audio-devices-menu.sh",
         "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
@@ -81,7 +81,7 @@
 
     "custom/proxmox": {
         "exec": "~/.config/waybar/scripts/proxmox_waybar.sh",
-        "on-click": "eww open --toggle proxmox-dashboard",
+        "on-click": "~/.config/hypr/scripts/toggle-menu.sh proxmox-dashboard",
         "return-type": "json",
         "interval": 15,
         "tooltip": true

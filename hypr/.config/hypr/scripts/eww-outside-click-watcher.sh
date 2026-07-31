@@ -12,20 +12,17 @@
 # otherwise focused) something that isn't one of our layer-shell popups
 # — those aren't regular windows and don't participate in activewindow —
 # so on every event we just close whichever of the three happen to be
-# open. Redundant closes are harmless (eww no-ops on an already-closed
-# window), so no need to track which one is open.
+# open (close-all-menus.sh, shared with the Escape-to-close submap in
+# menu-style.conf — it also resets that submap). Redundant closes are
+# harmless, so no need to track which one is open.
 set -euo pipefail
 
 SOCK="${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
-POPUPS=(power-menu volume-popup proxmox-dashboard)
 
 socat -U - "UNIX-CONNECT:${SOCK}" | while read -r line; do
   case "${line}" in
     activewindow\>\>*)
-      for w in "${POPUPS[@]}"; do
-        eww close "${w}" >/dev/null 2>&1 || true
-      done
-      eww update logout_expanded=false >/dev/null 2>&1 || true
+      ~/.config/hypr/scripts/close-all-menus.sh
       ;;
   esac
 done

@@ -196,7 +196,7 @@
   ;; chevron, so it's discoverable, sitting next to the main Logout
   ;; button which still does the immediate action on click.
   (box :orientation "h" :class "logout-row" :space-evenly false
-    (button :class "power-row" :hexpand true :onclick "eww close power-menu; hyprctl dispatch exit"
+    (button :class "power-row" :hexpand true :onclick "~/.config/hypr/scripts/close-all-menus.sh; hyprctl dispatch exit"
       (box :orientation "h" :space-evenly false :spacing 10
         (label :class "power-row-icon" :text "")
         (label :class "power-row-label" :text "Logout" :halign "start" :hexpand true)))
@@ -207,14 +207,14 @@
   (box :orientation "v" :class "power-menu-card" :space-evenly false
     (box :orientation "h" :class "quick-row" :space-evenly true
       (quick-icon-btn :icon "" :action "~/.config/hypr/scripts/toggle-nightlight.sh" :active {nightlight_active})
-      (quick-icon-btn :icon "" :action "eww close power-menu; ~/.config/hypr/scripts/idle-settings.sh" :active false))
+      (quick-icon-btn :icon "" :action "~/.config/hypr/scripts/close-all-menus.sh; ~/.config/hypr/scripts/idle-settings.sh" :active false))
     (box :class "power-menu-sep")
     (logout-row)
     (box :orientation "v" :class "logout-extra" :space-evenly false :visible {logout_expanded}
-      (power-row :icon "" :label "Lock" :action "eww close power-menu; hyprlock")
-      (power-row :icon "" :label "Relogin" :action "eww close power-menu; ~/.config/hypr/scripts/relogin.sh"))
-    (power-row :icon "" :label "Restart" :action "eww close power-menu; systemctl reboot")
-    (power-row :icon "" :label "Power off" :action "eww close power-menu; systemctl poweroff")))
+      (power-row :icon "" :label "Lock" :action "~/.config/hypr/scripts/close-all-menus.sh; hyprlock")
+      (power-row :icon "" :label "Relogin" :action "~/.config/hypr/scripts/close-all-menus.sh; ~/.config/hypr/scripts/relogin.sh"))
+    (power-row :icon "" :label "Restart" :action "~/.config/hypr/scripts/close-all-menus.sh; systemctl reboot")
+    (power-row :icon "" :label "Power off" :action "~/.config/hypr/scripts/close-all-menus.sh; systemctl poweroff")))
 
 (defwindow power-menu
   :monitor 1

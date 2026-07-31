@@ -1,0 +1,103 @@
+#!/bin/bash
+# fleet — thin, model-agnostic CLI over the AI fleet SSH config + Proxmox API.
+# Any AI agent/model can call this instead of needing bespoke per-model setup.
+#
+# Usage:
+#   fleet list                          List all known VMs/CTs (name, ip, type)
+#   fleet ssh <name> [cmd...]           SSH into a VM/CT by name (fleet key, ai-agent user)
+#   fleet exec-all <cmd...>             Run a command on every VM/CT in the fleet
+#   fleet host [cmd...]                 SSH/run on the Proxmox host itself (ai-agent user)
+#   fleet create-vm <name> <template-vmid> [new-vmid]
+#                                        Clone a template, boot it, inject the fleet key,
+#                                        refresh inventory — new VM is fleet-reachable with
+#                                        zero extra manual steps.
+#   fleet refresh                       Re-run inventory discovery now (don't wait for timer)
+#
+# Default scope is the whole fleet — there is no opt-in step per machine.
+
+set -euo pipefail
+
+INVENTORY_JSON="$HOME/.config/fleet/inventory.json"
+CRED_FILE="$HOME/.config/fleet/api-token.env"
+INVENTORY_SCRIPT="$HOME/.local/bin/fleet-inventory.sh"
+
+usage() {
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  exit 1
+}
+
+cmd_list() {
+  if [ ! -f "$INVENTORY_JSON" ]; then
+    echo "fleet: no inventory yet, run 'fleet refresh'" >&2
+    exit 1
+  fi
+  jq -r '["NAME","ALIAS","IP","TYPE","NODE"], (.[] | [.name, .alias, .ip, .type, .node]) | @tsv' "$INVENTORY_JSON" | column -t
+}
+
+cmd_ssh() {
+  local name="$1"; shift || true
+  local alias="$name"
+  [[ "$name" != vm-* ]] && alias="vm-${name}"
+  ssh "$alias" "$@"
+}
+
+cmd_exec_all() {
+  if [ "$#" -eq 0 ]; then
+    echo "fleet: exec-all requires a command" >&2
+    exit 1
+  fi
+  if [ ! -f "$INVENTORY_JSON" ]; then
+    echo "fleet: no inventory yet, run 'fleet refresh'" >&2
+    exit 1
+  fi
+  local aliases
+  aliases=$(jq -r '.[].alias' "$INVENTORY_JSON")
+  local status=0
+  while IFS= read -r a; do
+    [ -z "$a" ] && continue
+    echo "=== $a ==="
+    ssh -n "$a" "$@" || status=1
+  done <<< "$aliases"
+  return $status
+}
+
+cmd_host() {
+  ssh proxmox-fleet "$@"
+}
+
+cmd_refresh() {
+  "$INVENTORY_SCRIPT"
+}
+
+cmd_create_vm() {
+  local name="$1" template_vmid="$2" new_vmid="${3:-}"
+  if [ -z "$name" ] || [ -z "$template_vmid" ]; then
+    echo "usage: fleet create-vm <name> <template-vmid> [new-vmid]" >&2
+    exit 1
+  fi
+  if [ -z "$new_vmid" ]; then
+    new_vmid=$(ssh proxmox-fleet "sudo pvesh get /cluster/nextid")
+  fi
+  echo "fleet: cloning template $template_vmid -> $new_vmid ($name)"
+  ssh proxmox-fleet "sudo qm clone $template_vmid $new_vmid --name '$name' --full"
+  echo "fleet: injecting fleet key before first boot"
+  ssh proxmox-fleet "sudo bash -c 'source /root/scripts/provision_common.sh; inject_ai_key $new_vmid'"
+  ssh proxmox-fleet "sudo qm start $new_vmid"
+  echo "fleet: waiting for boot..."
+  sleep 20
+  echo "fleet: refreshing inventory"
+  cmd_refresh
+  echo "fleet: done — VM $new_vmid ($name) should appear in 'fleet list' shortly"
+}
+
+[ "$#" -eq 0 ] && usage
+
+case "$1" in
+  list) shift; cmd_list "$@" ;;
+  ssh) shift; cmd_ssh "$@" ;;
+  exec-all) shift; cmd_exec_all "$@" ;;
+  host) shift; cmd_host "$@" ;;
+  refresh) shift; cmd_refresh "$@" ;;
+  create-vm) shift; cmd_create_vm "$@" ;;
+  *) usage ;;
+esac

@@ -75,6 +75,63 @@
   :exclusive false
   (dashboard))
 
+;; Always-on-desktop performance widget. Not a toggle popup like the ones
+;; above (no keybind, not in eww-outside-click-watcher.sh's POPUPS list,
+;; opened once via exec-once in hyprland.conf and just stays up). Polls
+;; system_stats.py, which itself covers three separate machines (this
+;; desktop, ollama-host over SSH, and Proxmox via the existing
+;; proxmox_stats.py) in one shot. Deliberately plain — text rows only, no
+;; graphs/bars yet, per an explicit "keep it extremely basic for now, we
+;; polish it later" request.
+(defpoll system_stats
+  :interval "15s"
+  :initial "{}"
+  "~/.local/bin/system_stats.py")
+
+(defwidget stat-row [label value]
+  (box :orientation "h" :space-evenly false :class "stat-row"
+    (label :class "stat-label" :text label :halign "start" :hexpand true)
+    (label :class "stat-value" :text value :halign "end")))
+
+(defwidget sys-guest-row [guest]
+  (box :orientation "h" :space-evenly false :class "guest-row"
+    (label :class "guest-status ${guest.status}" :text "●")
+    (label :class "guest-name" :text "${guest.name}" :halign "start" :hexpand true)
+    (label :class "guest-metric" :text "${guest.cpu_pct}%/${guest.mem_pct}%")))
+
+(defwidget system-dashboard-widget []
+  (box :orientation "v" :class "sys-dashboard" :space-evenly false
+    (label :class "dashboard-title" :text "System" :halign "start")
+
+    (label :class "section-title" :text "This PC" :halign "start")
+    (stat-row :label "Load (1m)" :value {system_stats.local.load1 ?: "…"})
+    (stat-row :label "RAM" :value "${system_stats.local.ram_used_gb ?: '…'} / ${system_stats.local.ram_total_gb ?: '…'} GB")
+    (for disk in {system_stats.local.disks ?: []}
+      (stat-row :label {disk.mount} :value "${disk.used_gb}/${disk.total_gb} GB (${disk.pct}%)"))
+    (stat-row :label "RTX 3080" :value "${system_stats.local.gpu.util_pct ?: '…'}%  ${system_stats.local.gpu.temp_c ?: '…'}°C")
+
+    (label :class "section-title" :text "Ollama-host" :halign "start")
+    (stat-row :label "RX 580 strain" :value "${system_stats.ollama_host.rx580_busy_pct ?: '…'}%")
+    (for disk in {system_stats.ollama_host.backup_disks ?: []}
+      (stat-row :label {disk.mount} :value "${disk.used_gb}/${disk.total_gb} GB (${disk.pct}%)"))
+
+    (label :class "section-title" :text "Proxmox host" :halign "start")
+    (box :visible {system_stats.proxmox.status == "ok"} :orientation "v" :space-evenly false
+      (stat-row :label "CPU" :value "${system_stats.proxmox.node.cpu_pct ?: '…'}%")
+      (stat-row :label "Mem" :value "${system_stats.proxmox.node.mem_pct ?: '…'}%")
+      (stat-row :label "Disk" :value "${system_stats.proxmox.node.disk_pct ?: '…'}%")
+      (box :orientation "v" :class "guest-list" :space-evenly false
+        (for guest in {system_stats.proxmox.guests ?: []}
+          (sys-guest-row :guest guest))))
+    (label :visible {system_stats.proxmox.status != "ok"} :class "error-detail" :text "Proxmox unreachable")))
+
+(defwindow system-dashboard
+  :monitor 1
+  :geometry (geometry :x "0%" :y "40px" :anchor "top left" :width "260px" :height "1px")
+  :stacking "bg"
+  :exclusive false
+  (system-dashboard-widget))
+
 ;; Volume slider popup — toggled by left-clicking waybar's pulseaudio
 ;; module (right-click still opens volume-menu.sh for output/input device
 ;; switching, that's a selection list, not a slider — different job).

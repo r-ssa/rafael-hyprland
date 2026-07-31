@@ -25,3 +25,6 @@ scripts/.local/lib/
 scripts/.local/bin/agy
 scripts/.local/bin/inv
 scripts/.local/bin/invoke
+scripts/.local/bin/markdown-it
+scripts/.local/bin/pyfiglet
+scripts/.local/bin/pygmentize

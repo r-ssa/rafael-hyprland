@@ -281,3 +281,36 @@ button {
 .logout-extra {
     margin-left: 12px;
 }
+
+/* Always-on-desktop performance widget — deliberately minimal styling to
+   match its "extremely basic for now" scope; just enough to be readable
+   over the wallpaper. Reuses .guest-row/.guest-status/.guest-name/
+   .guest-metric/.error-detail from the Proxmox dashboard above. */
+.sys-dashboard {
+    background-color: alpha(@bg, 0.75);
+    color: @fg;
+    border: 1px solid alpha(@accent, 0.4);
+    border-radius: 10px;
+    padding: 10px;
+    min-width: 240px;
+}
+
+.section-title {
+    font-weight: bold;
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 8px;
+    margin-bottom: 2px;
+}
+
+.stat-row {
+    font-size: 12px;
+}
+
+.stat-label {
+    opacity: 0.85;
+}
+
+.stat-value {
+    font-weight: bold;
+}
